@@ -149,7 +149,6 @@ print(rf.oob_score_)
 | 계산 시점      | 모델 학습(`fit`) 직후           | 모델 학습 후(`fit` 이후)                            |
 | 사용 가능한 데이터 | 훈련 데이터로 학습된 트리 내부 정보만 사용  | 훈련·검증·테스트 등 **어떤** 데이터도 사용                   |
 | 재현성        | 모델 구조·훈련 과정에 고정됨          | 데이터와 성능 지표에 따라 달라짐                           |
-| 예시 코드      | `rf.feature_importances_` | `permutation_importance(rf, X_test, y_test)` |
 
 
 ### XGBoost 라이브러리
