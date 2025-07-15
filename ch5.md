@@ -80,8 +80,35 @@ from sklearn.model_selection import RandomizedSearchCV
 gs = RandomizedSearchCV(DecisionTreeClassifier(random_state=42), params, n_iter=100, n_jobs=-1, random_state=42)
 gs.fit(train_input, train_target)
 ```
-- `uniform` : 실숫값 뽑음
-- `randint` : 정숫값 뽑음
+
+## 3. 트리의 앙상블
+### 1) 랜덤 포레스트
+```python
+from sklearn.model_selection import cross_validate
+from sklearn.ensemble import RandomForestClassifier
+rf = RandomForestClassifier(n_jobs=-1, random_state=42)
+scores = cross_validate(rf, train_input, train_target, return_train_score=True, n_jobs=-1)
+print(np.mean(scores['train_score']), np.mean(scores['test_score']))
+```
+#### 작동원리 
+- 훈련 데이터를 부트스트랩 샘플링(중복해서 랜덤 추출) ;단, 훈련 샘플과 크기 같게 샘플링
+
+-> RandomForestClassifier(전체 특성 개수의 제곱근만큼 특성 선택)/RandomForestRegressor(전체 특성 사용)
+
+-> **분류** : 기본적으로 100개의 결정 트리를 이런 방식으로 훈련 후 각 트리의 클래스별 확률을 평균하여 가장 높은 확률을 가진 클래스를 예측으로 삼음 / **회귀** : 단순히 각 트리의 예측 평균
+
+#### 장점
+랜덤하게 선택한 샘플 & 특성 사용 => 훈련 세트 과대적합 방지 + 일반화 성능 높임 
+
+#### OOB 샘플
+```python
+rf = RandomForestClassifier(oob_score=True, n_jobs=-1, random_state=42)
+rf.fit(train_input, train_target)
+print(rf.oob_score_)
+```
+- 부트스트랩 샘플에 포함되지 않은 남은 샘플(out of bag sample)
+- 검증세트의 역할 수행 가능 => 별도의 검증세트를 분리할 필요가 없으므로 **훈련 세트에 더 많은 샘플 사용 가능**
+
 ## cf
 ```python
 df.describe()
