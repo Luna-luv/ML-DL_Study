@@ -53,8 +53,35 @@ print(dt.feature_importances_)
 - 특성 중요도의 효과?를 잘 못 느꼈는데 확실히 결정트리에서는 클래스를 분류하는데 어떤 특성이 영향을 많이 미쳤는지 보고 해석할 수 있겠구나..~!
 
 ## 2. 교차 검증과 그리드 서치
+```python
+from sklearn.model_selection import GridSearchCV
+params = {'min_impurity_decrease' : [0.0001, 0.0002, 0.0003, 0.0004, 0.0005]}
+gs = GridSearchCV(DecisionTreeClassifier(random_state=42), params, n_jobs=-1)
+gs.fit(train_input, train_target)
+dt = gs.best_estimator_
+```
+- GridSearch 를 이용하면 하이퍼파라미터 & 모델 파라미터 최적값 찾기 한 번에 가능
+- `min_impurity_decrease` : 노드를 분할하기 위한 불순도 감소 최소량 
 
+➡️ 더 복잡하게 
+```python
+params = {'min_impurity_decrease': np.arange(0.0001, 0.001, 0.0001), 'max_depth': range(5, 20, 1), 'min_samples_split': range(2, 100, 10)}
+```
+- `range(숫자1, 숫자2, 숫자3)` : 숫자1에서 시작해서 숫자2가 될 때까지 숫자3씩 증가하면서 매개변수 조정 
 
+➡️ 매개변수 값 범위나 간격 정하기 어려울 때 / 너무 많은 매개변수 조건이 있을 때
+
+**랜덤 서치** : 매개변수를 샘플링할 수 있는 확률 분포 객체 전달
+```python
+from scipy.stats import uniform, randint 
+params = {'min_impurity_decrease': uniform(0.0001, 0.001), 'max_depth': randint(20, 50), 'min_samples_split': randint(2, 25), 'min_samples_leaf': randint(1, 25),}
+
+from sklearn.model_selection import RandomizedSearchCV
+gs = RandomizedSearchCV(DecisionTreeClassifier(random_state=42), params, n_iter=100, n_jobs=-1, random_state=42)
+gs.fit(train_input, train_target)
+```
+- `uniform` : 실숫값 뽑음
+- `randint` : 정숫값 뽑음
 ## cf
 ```python
 df.describe()
@@ -71,3 +98,13 @@ random state = 00
 ```
 - random state 숫자가 같을 경우 동일한 랜덤 데이터로 훈련
 - 실전에서는 필요하지 않지만, 연습 또는 코드 공유 시에 같은 숫자로 하면 동일한 점수를 얻을 수 있음
+
+`scipy(싸이파이) 라이브러리` : 적분, 보간, 선형대수, 확률 등을 포함한 수치 계산 전용 라이브러리(싸이킷런이 넘파이와 싸이파이 기능을 많이 사용함)
+
+```python
+from scipy.stats import uniform, randint
+rgen = randint(0, 10)
+np.unique(rgen.rvs(1000), return_counts=True)
+```
+- 정수 10개씩 묶여있는 배열 1000개를 뽑음
+- `randint` 자리에 `uniform` 넣으면 실수 10개씩 묶여있느 배열 1000개 뽑음
