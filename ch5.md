@@ -82,7 +82,7 @@ gs.fit(train_input, train_target)
 ```
 
 ## 3. 트리의 앙상블
-### 1) 랜덤 포레스트
+### 1) 랜덤 포레스트 Random Forest 
 ```python
 from sklearn.model_selection import cross_validate
 from sklearn.ensemble import RandomForestClassifier
@@ -108,6 +108,45 @@ print(rf.oob_score_)
 ```
 - 부트스트랩 샘플에 포함되지 않은 남은 샘플(out of bag sample)
 - 검증세트의 역할 수행 가능 => 별도의 검증세트를 분리할 필요가 없으므로 **훈련 세트에 더 많은 샘플 사용 가능**
+
+### 2) 엑스트라 트리 Extra Trees 
+#### 작동원리 
+- 부트스트랩 샘플링을 사용하지 않고 전체 훈련 세트로 결정 트리 만듦
+- 노드 분할시 가장 좋은 분할 찾기 x. **무작위 분할**(임계값 자체가 무작위)
+
+```text
+ 과적합 방지하고 안정성을 높으리면 랜덤포레스트, 
+ 빠른 속도를 원하면 엑스트라 트리
+ ```
+
+ ### 3) 그레이디언트 부스팅 Gradient Boosting
+ ```python
+ from sklearn.ensemble import GradientBoostingClassifier
+ gb = GradientBoostingClassifier(random_state=42)
+ scores = cross_validate(gb, train_input, train_target, return_train_score=True, n_jobs=-1)
+ print(np.mean(scores['train_socre']), np.mean(scores['test_score']))
+ ```
+
+ #### 작동원리
+ - 깊이가 얕은 결정트리를 사용하여 이전 트리의 오차를 보완하는 방식 
+
+#### 매개변수 subsample
+- 트리 훈련에 사용할 훈련 세트의 비율 정함
+  - `subsample=1` : 전체 훈련 세트 사용
+  - `subsample<1` : 훈련 세트의 일부 사용 (확률적 경사 하강법 또는 미니배치 경사 하강법과 유사)
+
+### 4) 히스토그램 기반 그레이디언트 부스팅 Histogram-based Gradient Boosting
+#### 작동 원리
+- 입력 특성을 256개의 구간으로 나눔 => 최적의 분할을 빠르게 찾을 수 있음 
+
+#### `permutation_importance()`
+- 특성 중요도 계산
+  - 특성을 하나씩 랜덤하게 섞어서 모델 성능 변화 관찰 후 중요도 계산 (훈련, 테스트 세트 전부 사용 가능)
+
+### XGBoost 라이브러리
+- Scikit learn 라이브러리가 아니더라도 그레디언트 부스팅 알고리즘 구현 가능
+  - `tree_method = hist` 로 할 경우 히스토그램 기반 그레디언트 부스팅 
+- LightGBM 도 사용 가능(`LGBMClassifier`)
 
 ## cf
 ```python
